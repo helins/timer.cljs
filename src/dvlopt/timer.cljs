@@ -35,7 +35,15 @@
 
   ;;
 
-  "onmessage=(e)=>{var x=e.data[1]; if (x) {setTimeout(function(){postMessage(x)},e.data[0])} else {clearTimeout(e.data[0])}}")
+  "onmessage=(e)=>{var x=e.data[1]; if (x){setTimeout(function(){postMessage(x)},e.data[0])} else{clearTimeout(e.data[0])}}")
+
+
+
+(defprotocol ^:private -ITimer
+
+  ;;
+
+  (-in [this token interval f]))
 
 
 
@@ -49,42 +57,89 @@
   (in [this interval f]
     "")
 
-  #_(every [this interval f]
+  (every [this interval f]
+         [this interval f on-lag]
     "")
   )
 
 
 
-(deftype Worker [^:mutable token
+(deftype Worker [^:mutable token-id
                  token->callbacks
                  worker]
+
+  -ITimer
+
+
+    (-in [this v*token interval f]
+      (let [token-id-cached token-id]
+        (.set token->callbacks
+              token-id-cached
+              f)
+        (set! token-id
+              (if (< token-id-cached
+                     js/Number.MAX_SAFE_INTEGER)
+                (inc token-id-cached)
+                1))
+        (.postMessage worker
+                      #js [interval
+                           token-id-cached])
+        (vreset! v*token
+                 token-id-cached)
+        v*token))
+
+
 
   ITimer
 
 
-    (cancel [this token]
-      (.delete token->callbacks
-               token)
-      (.postMessage worker
-                    #js [token])
+    (cancel [this v*token]
+      (let [token-id @v*token]
+        (when (.get token->callbacks
+                    token-id)
+          (.delete token->callbacks
+                   token-id)
+          (.postMessage worker
+                        #js [token-id])))
       this)
 
 
     (in [this interval f]
-      (let [token-cached token]
-        (.set token->callbacks
-              token
-              f)
-        (set! token
-              (if (< token
-                     js/Number.MAX_SAFE_INTEGER)
-                (inc token)
-                1))
-        (.postMessage worker
-                      #js [interval
-                           token-cached])
-        token-cached))
-    )
+      (-in this
+           (volatile! nil)
+           interval
+           f))
+
+
+    (every [this interval f]
+      (every this
+             interval
+             f
+             nil))
+
+
+    (every [this interval f on-lag]
+      (let [v*n     (volatile! 1)
+            v*token (volatile! nil)
+            start   (now)]
+        (-in this
+             v*token
+             interval
+             (fn each-time []
+               (f)
+               (let [next-timestamp (+ start
+                                       (* (vswap! v*n
+                                                  inc)
+                                          interval))
+                     delta          (Math/ceil (- next-timestamp
+                                                  (now)))]
+                 (if (neg? delta)
+                   (when on-lag
+                     (on-lag delta))
+                   (-in this
+                        v*token
+                        delta
+                        each-time))))))))
 
 
 
