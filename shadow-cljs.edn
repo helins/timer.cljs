@@ -1,0 +1,21 @@
+{:builds
+ {:lib
+  {:modules    {:main {:entries [dvlopt.timer]}}
+   :output-dir "public/js"
+   :target     :browser}
+
+
+  :test
+  {:target    :browser-test
+   :runner-ns lambdaisland.chui.shadow.browser-runner
+   :test-dir  "test_shadow"}}
+
+ :deps
+ {:alias [:cljs]}
+ 
+ :dev-http
+ {8080 "public"}
+ 
+ :nrepl
+ {:port 4000}
+ }
