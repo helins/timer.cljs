@@ -1,11 +1,17 @@
 # Timers
 
+[![Clojars
+Project](https://img.shields.io/clojars/v/dvlopt/timer.cljs.svg)](https://clojars.org/dvlopt/timer.cljs)
+
+[![cljdoc
+badge](https://cljdoc.org/badge/dvlopt/timer.cljs)](https://cljdoc.org/d/dvlopt/timer.cljs)
+
 Provides sane alternatives to `setTimeout` and `setInterval` in web apps.
 
 Timers in the browser can be somewhat imprecise. They are scheduled on the main
 thread and and subject to throttling. For instance, when the tab in inactive,
 all timers executes at most once per second, which is often not at all what is
-intended. Even `core.async` timeouts suffers from this.
+intended. Even `core.async` timeouts suffer from this.
 
 This libary overcomes such problems and improves the precision of timers by
 executing on the main thread but scheduling using a web worker.
@@ -19,7 +25,7 @@ Let us require the library:
 (require '[dvlopt.timer :as timer])
 ```
 
-First, we create a worker. Since all this worker handles is scheduling, one
+First, we create a worker. Since all this worker will handle is scheduling, one
 worker will typically be more than enough for a whole application.
 
 ```clj
