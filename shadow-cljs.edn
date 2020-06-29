@@ -1,7 +1,8 @@
 {:builds
  {:lib-dev
   {:modules    {:main {:entries [cljs.user
-                                 dvlopt.timer]}}
+                                 dvlopt.timer
+                                 dvlopt.timer-test]}}
    :output-dir "public/js"
    :target     :browser}
 

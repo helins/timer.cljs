@@ -23,4 +23,5 @@ package-lock.json
 /public/*
 !/public/index.html
 resources/
-test_shadow/
+/chui/*
+!/chui/index.html
