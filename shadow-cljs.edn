@@ -1,6 +1,7 @@
 {:builds
- {:lib
-  {:modules    {:main {:entries [dvlopt.timer]}}
+ {:lib-dev
+  {:modules    {:main {:entries [cljs.user
+                                 dvlopt.timer]}}
    :output-dir "public/js"
    :target     :browser}
 
@@ -8,7 +9,7 @@
   :test
   {:target    :browser-test
    :runner-ns lambdaisland.chui.shadow.browser-runner
-   :test-dir  "test_shadow"}}
+   :test-dir  "chui"}}
 
  :deps
  {:alias [:cljs]}

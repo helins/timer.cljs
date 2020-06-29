@@ -25,6 +25,5 @@
    :main-opts  ["-m" "deps-deploy.deps-deploy" "install" "timer.jar"]}
 
   :test
-  {:extra-deps  {lambdaisland/chui   {:mvn/version "0.0.117"}
-                 lambdaisland/kaocha {:mvn/version "1.0-612"}}
+  {:extra-deps  {lambdaisland/chui {:mvn/version "0.0.117"}}
    :extra-paths ["test"]}}}

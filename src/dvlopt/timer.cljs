@@ -59,8 +59,7 @@
 
   (every [this interval f]
          [this interval f on-lag]
-    "")
-  )
+    ""))
 
 
 
