@@ -6,16 +6,15 @@ Project](https://img.shields.io/clojars/v/dvlopt/timer.cljs.svg)](https://clojar
 [![cljdoc
 badge](https://cljdoc.org/badge/dvlopt/timer.cljs)](https://cljdoc.org/d/dvlopt/timer.cljs)
 
-Provides sane alternatives to `setTimeout` and `setInterval` in web apps.
-
 Timers in the browser can be somewhat imprecise. They are scheduled on the main
-thread and and subject to throttling. For instance, when the tab in inactive,
-all timers executes at most once per second, which is often not at all what is
+thread and subject to throttling. For instance, when the tab in inactive,
+all timers execute at most once per second, which is often not at all what is
 intended. Even `core.async` timeouts suffer from this.
 
 This libary overcomes such problems and improves the precision of timers by
-executing on the main thread but scheduling using a web worker.
-
+executing on the main thread but scheduling in a web worker. It still relies on
+the ol' `.setTimeout` and `.setInterval`, but in a way that makes them more
+reliable.
 
 ## Usage
 
@@ -81,6 +80,27 @@ elapsed since the [time
 origin](https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp#The_time_origin).
 The fractional part, if present, represents fractions of a millisecond and
 should be accurate to 5 microseconds.
+
+## Few notes and miscellaneous ideas
+
+This method, while being simple, is probably the best way for having
+general-purpose timers in the browser.
+
+`requestAnimationFrame` has been known for being used to complete repetitive,
+somewhat fine-grained tasks. As its main purpose is animation, timing is fixed
+but it can be remarkbly predictable if the main thread is not overwhelmed.
+However, execution is stopped as soon as the tab becomes inactive, making it
+often unsuitable for any other purpose than animation.
+
+The `Web Audio` and `Web MIDI` APIs provides accurate timers for specific tasks
+such as generating a sound or sending a MIDI event. However, those events are
+scheduled for a precise moment, and sometimes, once scheduled, cannot be
+canceled. A proven method is to combine those precise, specific timers with this
+library in order the gain very fine control. This idea is not new, it has
+already been described back in 2013 in [this
+article](https://www.html5rocks.com/en/tutorials/audio/scheduling/). We like to
+call it "look ahead scheduling", or "double scheduling".
+
 
 ## License
 
