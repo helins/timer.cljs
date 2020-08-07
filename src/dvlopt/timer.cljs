@@ -42,6 +42,20 @@
 ;;;;;;;;;; .setInterval and .setTimeout
 
 
+(defn- -delta!
+
+  ;; Used by [[Worker]] as well as [[main-thread]]
+
+  [start v*n interval]
+
+  (Math/ceil (- (+ start
+                   (* (vswap! v*n
+                              inc)
+                      interval))
+                (now))))
+
+
+
 (def ^:private -worker-src
 
   ;; Source code for the web worker in charge of creating and cancelling timers.
@@ -84,6 +98,54 @@
      late\").
     
      Returns a token for cancellation (akin to [[in]])."))
+
+
+
+(def main-thread
+
+  ""
+
+  (reify ITimer
+
+    (cancel [this token]
+      (js/clearTimeout (if (volatile? token)
+                         @token
+                         token))
+      this)
+
+
+    (in [this interval f]
+      (js/setTimeout f
+                     interval))
+
+
+    (every [this interval f]
+      (every this
+             interval
+             f
+             nil))
+
+
+    (every [this interval f on-lag]
+      (let [v*n     (volatile! 1)
+            v*token (volatile! nil)
+            start   (now)]
+        (vreset! v*token
+                 (in this
+                     interval
+                     (fn each-time []
+                       (f)
+                       (let [delta (-delta! start
+                                            v*n
+                                            interval)]
+                         (if (neg? delta)
+                           (when on-lag
+                             (on-lag delta))
+                           (vreset! v*token
+                                    (in this
+                                        delta
+                                        each-time)))))))
+        v*token))))
 
 
 
@@ -150,12 +212,9 @@
              interval
              (fn each-time []
                (f)
-               (let [next-timestamp (+ start
-                                       (* (vswap! v*n
-                                                  inc)
-                                          interval))
-                     delta          (Math/ceil (- next-timestamp
-                                                  (now)))]
+               (let [delta (-delta! start
+                                    v*n
+                                    interval)]
                  (if (neg? delta)
                    (when on-lag
                      (on-lag delta))

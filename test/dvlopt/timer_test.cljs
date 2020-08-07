@@ -42,33 +42,68 @@
 
 
 
-(t/deftest cancel
+(defn cancel
+
+  [done timer-obj]
+
+  (let [v*target (volatile! true)]
+    (timer/cancel timer-obj
+                  (timer/in timer-obj
+                            50
+                            #(vreset! v*target
+                                      false)))
+    (timer/in timer-obj
+              100
+              (fn canceled? []
+                (t/is @v*target
+                      "Target has not been changed")
+                (done)))))
+
+
+
+(t/deftest cancel-main
 
   (t/async done
-    (let [v*target (volatile! true)]
-      (timer/cancel worker
-                    (timer/in worker
-                              50
-                              #(vreset! v*target
-                                        false)))
-      (timer/in worker
-                100
-                (fn canceled? []
-                  (t/is @v*target
-                        "Target has not been changed")
-                  (done))))))
+    (cancel done
+            timer/main-thread)))
 
 
-(t/deftest in
+
+(t/deftest cancel-worker
 
   (t/async done
-    (let [start (timer/now)]
-      (timer/in worker
-                50
-                (fn in []
-                  (elapsed start
-                           50)
-                  (done))))))
+    (cancel done
+            worker)))
+
+
+
+(defn in
+
+  [done timer-obj]
+
+  (let [start (timer/now)]
+    (timer/in timer-obj
+              50
+              (fn f []
+                (elapsed start
+                         50)
+                (done)))))
+
+
+
+(t/deftest in-main
+
+  (t/async done
+    (in done
+        timer/main-thread)))
+
+
+
+(t/deftest in-worker
+
+  (t/async done
+    (in done
+        worker)))
 
 
 ;;;;;;;;;; "Immediate" async tasks
