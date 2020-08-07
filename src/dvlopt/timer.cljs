@@ -6,7 +6,9 @@
    on the main thread. For instance, timers scheduled on the main thread are throttled when the tab is
    inactive. "
 
-  {:author "Adam Helinski"})
+  {:author "Adam Helinski"}
+
+  (:import goog.structs.Queue))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -37,7 +39,7 @@
   (js/performance.now))
 
 
-;;;;;;;;;;
+;;;;;;;;;; .setInterval and .setTimeout
 
 
 (def ^:private -worker-src
@@ -183,3 +185,53 @@
                                     token)
                            (callback)))))
                w))))
+
+
+;;;;;;;;;; "Immediate" async tasks
+
+
+(defn micro-task
+
+  ""
+
+  [f]
+
+  (js/queueMicrotask f)
+  nil)
+
+
+
+(def ^:private -task-queue
+
+  ;;
+
+  (Queue.))
+
+
+
+(def ^:private -port
+
+  ;;
+
+  (let [message-channel (js/MessageChannel.)]
+    (.addEventListener (.-port1 message-channel)
+                       "onmessage"
+                       (fn next-task [_event]
+                         (when-some [f (.peek -task-queue)]
+                           (.dequeue -task-queue)
+                           (f))))
+    (.-port2 message-channel)))
+
+
+
+(defn task
+
+  ""
+
+  [f]
+
+  (.enqueue -task-queue
+            f)
+  (.postMessage -port
+                nil)
+  nil)

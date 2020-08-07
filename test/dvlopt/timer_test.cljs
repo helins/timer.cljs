@@ -8,7 +8,7 @@
             [dvlopt.timer :as timer]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; .setInterval and .setTimeout
 
 
 (def tolerance-ms
@@ -69,3 +69,12 @@
                   (elapsed start
                            50)
                   (done))))))
+
+
+;;;;;;;;;; "Immediate" async tasks
+
+
+(t/deftest micro-task
+
+  (t/async done
+    (timer/micro-task done)))
