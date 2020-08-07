@@ -1,11 +1,9 @@
 (ns dvlopt.timer
 
-  "Rather accurate timers for the browser.
+  "Utilities for scheduling async operations using various APIs.
   
-   All timers are handled asynchronously by a [[worker]], which offers some benefits over scheduling them
-   on the main thread. For instance, timers scheduled on the main thread are throttled when the tab is
-   inactive. "
-
+   See README."
+  
   {:author "Adam Helinski"}
 
   (:import goog.structs.Queue))
@@ -30,7 +28,8 @@
   "High resolution timestamp garanteed to be monotonically increasing, usually preferred over [[epoch]].
   
    Returns the number of milliseconds elapsed since the time origin. Fractional part, if present, represents fractions
-   of a millisecond and should be accurate to 5 microseconds.
+   of a millisecond and should be accurate to 5 microseconds. Garanteed precision is 1 millisecond unless the user-agent
+   deliberately tweaked this option.
   
    Cf. [Time origin in MDN](https://developer.mozilla.org/en-US/docs/Web/API/DOMHighResTimeStamp#The_time_origin)"
 
@@ -44,14 +43,14 @@
 
 (defn- -delta!
 
-  ;; Used by [[Worker]] as well as [[main-thread]]
+  ;; Used by [[Worker]] as well as [[main-thread]].
 
-  [start v*n interval]
+  [start v*n millis]
 
   (Math/ceil (- (+ start
                    (* (vswap! v*n
                               inc)
-                      interval))
+                      millis))
                 (now))))
 
 
@@ -64,17 +63,21 @@
 
 
 
-(defprotocol ^:private -ITimer
+(defprotocol ^:private -IWorker
 
-  ;; Base method for creating a a timer.
+  ;; Base method for creating a a timer in a worker.
 
-  (-in [this token interval f]))
+  (-in [this token millis f]))
 
 
 
 (defprotocol ITimer
 
-  "See [[worker]]."
+  "Scheduling something at some relatively precise point in the future.
+
+   Precision depends on current activity and can be improved by using a [[worker]] rather than the [[main-thread]].
+  
+   See README."
 
   (cancel [this token]
     "Cancels a timer by using its token.
@@ -82,7 +85,7 @@
      See [[in]] and [[every]].")
 
   (in [this millis f]
-    "Executes `f` in `millis` milliseconds using the given worker.
+    "Executes `f` in `millis` milliseconds.
     
      Returns a token which can be used in [[cancel]] for effectively clearing this timer.")
 
@@ -97,13 +100,13 @@
      `on-lag` (if provided) is called with 1 argument: a negative value denotating the lag in milliseconds (eg. -143 means \"143 milliseconds
      late\").
     
-     Returns a token for cancellation (akin to [[in]])."))
+     Returns a token for cancellation (see [[in]])."))
 
 
 
 (def main-thread
 
-  ""
+  "Object implementing [[ITimer]] functions for scheduling on the main thread."
 
   (reify ITimer
 
@@ -114,30 +117,30 @@
       this)
 
 
-    (in [this interval f]
+    (in [this millis f]
       (js/setTimeout f
-                     interval))
+                     millis))
 
 
-    (every [this interval f]
+    (every [this millis f]
       (every this
-             interval
+             millis
              f
              nil))
 
 
-    (every [this interval f on-lag]
+    (every [this millis f on-lag]
       (let [v*n     (volatile! 1)
             v*token (volatile! nil)
             start   (now)]
         (vreset! v*token
                  (in this
-                     interval
+                     millis
                      (fn each-time []
                        (f)
                        (let [delta (-delta! start
                                             v*n
-                                            interval)]
+                                            millis)]
                          (if (neg? delta)
                            (when on-lag
                              (on-lag delta))
@@ -153,10 +156,10 @@
                  token->callbacks
                  worker]
 
-  -ITimer
+  -IWorker
 
 
-    (-in [this v*token interval f]
+    (-in [this v*token millis f]
       (let [token-id-cached token-id]
         (.set token->callbacks
               token-id-cached
@@ -167,7 +170,7 @@
                 (inc token-id-cached)
                 1))
         (.postMessage worker
-                      #js [interval
+                      #js [millis
                            token-id-cached])
         (vreset! v*token
                  token-id-cached)
@@ -189,32 +192,32 @@
       this)
 
 
-    (in [this interval f]
+    (in [this millis f]
       (-in this
            (volatile! nil)
-           interval
+           millis
            f))
 
 
-    (every [this interval f]
+    (every [this millis f]
       (every this
-             interval
+             millis
              f
              nil))
 
 
-    (every [this interval f on-lag]
+    (every [this millis f on-lag]
       (let [v*n     (volatile! 1)
             v*token (volatile! nil)
             start   (now)]
         (-in this
              v*token
-             interval
+             millis
              (fn each-time []
                (f)
                (let [delta (-delta! start
                                     v*n
-                                    interval)]
+                                    millis)]
                  (if (neg? delta)
                    (when on-lag
                      (on-lag delta))
@@ -227,7 +230,11 @@
 
 (defn worker
 
-  "Creates a new worker which can be used for scheduling."
+  "Creates a new worker which can be used for scheduling more precisely than on the main thread.
+  
+   Browser only.
+  
+   See [[ITimer]] functions."
 
   []
 
@@ -251,7 +258,9 @@
 
 (defn micro-task
 
-  ""
+  "Enqueues `f` to run asynchronously as a micro task.
+
+   See README for the difference between a regular task and a micro-task."
 
   [f]
 
@@ -262,7 +271,7 @@
 
 (def ^:private -task-queue
 
-  ;;
+  ;; Queue for regular tasks.
 
   (Queue.))
 
@@ -270,7 +279,7 @@
 
 (def ^:private -port
 
-  ;;
+  ;; Used by [[task]] to schedule a task.
 
   (let [message-channel (js/MessageChannel.)
         port-1          (.-port1 message-channel)]
@@ -287,7 +296,9 @@
 
 (defn task
 
-  ""
+  "Enqueues `f` to run asynchronously as a regular task.
+  
+   See README for the difference between a regular task and a micro-task."
 
   [f]
 
@@ -304,7 +315,7 @@
 
 (defn cancel-frame
 
-  ""
+  "See [[frame]]."
 
   [token]
 
@@ -315,7 +326,15 @@
 
 (defn frame
 
-  ""
+  "Schedules `f` to run when the screen is about to be refreshed. Current timestamp, as it would have been
+   returned by [[now]], is provided as sole argument and any time-dependent computation should rely on it.
+
+   Same timestamp is provided to all functions scheduled for a given frame so that that all computations are
+   in sync.
+  
+   Returns a token which can be used to cancel this via [[cancel-frame]].
+
+   Cf. [.requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame)"
 
   [f]
 
@@ -325,7 +344,10 @@
 
 (defn frames
 
-  ""
+  "Like [[frame]], but schedules `f` repeatedly for every frame.
+
+   Returns a no-arg function which can be called to cancel this. Same function is provided as a second argument
+   to `f`."
 
   [f]
 
