@@ -106,7 +106,10 @@
 
 (def main-thread
 
-  "Object implementing [[ITimer]] functions for scheduling on the main thread."
+  "Object implementing [[ITimer]] functions for scheduling on the main thread.
+  
+   In the browser, usually clamped to run at once per second when the tab is inactive. This is
+   avoided by using [[worker]]."
 
   (reify ITimer
 
@@ -331,6 +334,10 @@
 
    Same timestamp is provided to all functions scheduled for a given frame so that that all computations are
    in sync.
+
+   Is expected to run closely to the monitor refresh rate (usually, 60 frames per second).
+
+   Does not run while the tab is not focused, as there is nothing to see, hence no frame to generate.
   
    Returns a token which can be used to cancel this via [[cancel-frame]].
 
