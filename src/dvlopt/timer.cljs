@@ -213,13 +213,15 @@
 
   ;;
 
-  (let [message-channel (js/MessageChannel.)]
-    (.addEventListener (.-port1 message-channel)
-                       "onmessage"
+  (let [message-channel (js/MessageChannel.)
+        port-1          (.-port1 message-channel)]
+    (.addEventListener port-1
+                       "message"
                        (fn next-task [_event]
                          (when-some [f (.peek -task-queue)]
                            (.dequeue -task-queue)
                            (f))))
+    (.start port-1)
     (.-port2 message-channel)))
 
 
