@@ -85,7 +85,7 @@ timer/main-thread
 Using a worker, scheduling happens via a Web Worker and is typically more
 reliable. However, the execution itself still happens on the main thread. Using
 a worker in such a fashion is surprisingly robust, enough to handle
-time-sensitive operation such as generating music.
+time-sensitive operation such as generating music. Usually, one worker per application is more than enough as all it does is scheduling.
 
 
 #### As soon as possible
