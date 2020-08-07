@@ -182,3 +182,23 @@
                              [timer/micro-task :micro-2]]])))
            (fn [_ _]
              (done)))))
+
+
+;;;;;;;;;; .requestAnimationFrame
+
+
+(t/deftest frames
+  (t/async done
+    (let [v*i (volatile! 0)]
+      (timer/frames (fn [timestamp cancel-frames]
+                      (when (= (vswap! v*i
+                                       inc)
+                               4)
+                        (cancel-frames)
+                        (timer/in timer/main-thread
+                                  1000
+                                  (fn []
+                                    (t/is (= 4
+                                             @v*i)
+                                          "Frames were indeed cancelled")
+                                    (done)))))))))

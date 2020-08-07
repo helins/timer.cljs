@@ -296,3 +296,46 @@
   (.postMessage -port
                 nil)
   nil)
+
+
+;;;;;;;;;; .requestAnimationFrame
+
+
+
+(defn cancel-frame
+
+  ""
+
+  [token]
+
+  (js/cancelAnimationFrame token)
+  nil)
+
+
+
+(defn frame
+
+  ""
+
+  [f]
+
+  (js/requestAnimationFrame f))
+
+
+
+(defn frames
+
+  ""
+
+  [f]
+
+  (let [v*token       (volatile! nil)
+        cancel-frames (fn cancel-frames []
+                        (some-> @v*token
+                                cancel-frame))]
+    (frame (fn run [timestamp]
+             (vreset! v*token
+                      (frame run))
+             (f timestamp
+                cancel-frames)))
+    cancel-frames))
