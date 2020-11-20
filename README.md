@@ -139,7 +139,7 @@ For the drawing itself, on canvas, we recommend
 
 In between 2 regular tasks in the event loop (what has been discussed up to this
 point), the Javascript engine runs the "micro task queue". A micro task can
-schedule another micro task which will be appended to that same queue. Only when that queue is empty will the engine proceeed to the next regular task.
+schedule another micro task which will be appended to that same queue. Only when that queue is empty will the engine proceed to the next regular task.
 
 Micro tasks are useful for scheduling high-priority asynchronous operations
 garanteed to execute in order of scheduling before the next regular task. While
