@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dvlopt</groupId>
   <artifactId>timer.cljs</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <name>Scheduling async operations in Clojurescript</name>
   <description>Leverage web workers for asynchronous timers</description>
   <url>https://github.com/dvlopt/timer.cljs</url>
