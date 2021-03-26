@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>dvlopt</groupId>
+  <groupId>io.helins</groupId>
   <artifactId>timer.cljs</artifactId>
   <version>1.1.1</version>
   <name>Scheduling async operations in Clojurescript</name>
   <description>Leverage web workers for asynchronous timers</description>
-  <url>https://github.com/dvlopt/timer.cljs</url>
+  <url>https://github.com/helins/timer.cljs</url>
   <licenses>
     <license>
       <name>Eclipse Public License</name>
@@ -16,12 +16,14 @@
   <developers>
     <developer>
       <name>Adam Helinski</name>
+      <email>adam@helins.io</email>
+      <url>http://www.helins.io</url>
     </developer>
   </developers>
   <scm>
-    <url>https://github.com/dvlopt/timer.cljs</url>
-    <connection>scm:git:git://github.com/dvlopt/timer.cljs.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/dvlopt/timer.cljs.git</developerConnection>
+    <url>https://github.com/helins/timer.cljs</url>
+    <connection>scm:git:git://github.com/helins/timer.cljs.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/helins/timer.cljs.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
   <dependencies>

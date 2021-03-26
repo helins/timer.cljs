@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 
-clojure -A:jar && env CLOJARS_USERNAME=dvlopt clj -A:deploy
+clojure -X:jar && clojure -X:deploy && rm release.jar

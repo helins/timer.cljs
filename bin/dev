@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 
-clj -A:dev:test:cljs watch lib-dev
+clj -M:cljs:dev:test watch dev

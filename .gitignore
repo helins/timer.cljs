@@ -3,25 +3,28 @@
 /checkouts
 *.jar
 *.class
-.cpcache
+/.cpcache
 /.lein-*
 /.nrepl-history
 /.nrepl-port
 .hgignore
 .hg/
+.rebel_readline_history
 
-.reb*
+// For running kaocha-cljs
+
+.cljs_node_repl/
+node_modules/
+out
 
 // Shadow-cljs
-
 .cljs
 .shadow-cljs/
 node_modules/
 out
 package.json
-package-lock.json
-/public/*
-!/public/index.html
-resources/
-/chui/*
-!/chui/index.html
+
+/resources/public/*
+!/resources/public/index.html
+/resources/chui/*
+!/resources/chui/index.html

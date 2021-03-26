@@ -1,11 +1,16 @@
-(ns dvlopt.timer-test
+;; This Source Code Form is subject to the terms of the Mozilla Public
+;; License, v. 2.0. If a copy of the MPL was not distributed with this
+;; file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+
+(ns helins.timer.test
 
   ""
 
   {:author "Adam Helinski"}
 
   (:require [clojure.test :as t]
-            [dvlopt.timer :as timer]))
+            [helins.timer :as timer]))
 
 
 ;;;;;;;;;; .setInterval and .setTimeout
@@ -147,7 +152,6 @@
                                  :task-1
                                  :task-2])))))))
     p))
-
 
 
 
