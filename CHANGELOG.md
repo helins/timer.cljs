@@ -16,6 +16,15 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [2.0.0] - 2021-03-26
+
+### Changed
+
+- Relicensed under MPL 2.0
+- Rename group id from "dvlopt" to "io.helins"
+
+
+
 ## [1.1.1] - 2020-11-20
 
 ### Fixed
@@ -44,7 +53,8 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]: https://github.com/helins/timer.cljs/compare/1.1.1...HEAD
+[Unreleased]: https://github.com/helins/timer.cljs/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/helins/timer.cljs/compare/1.1.1...2.0.0
 [1.1.1]: https://github.com/helins/timer.cljs/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/helins/timer.cljs/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/helins/timer.cljs/tree/1.0.0

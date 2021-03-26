@@ -1,10 +1,9 @@
 # Timers
 
 [![Clojars
-Project](https://img.shields.io/clojars/v/dvlopt/timer.cljs.svg)](https://clojars.org/dvlopt/timer.cljs)
+Project](https://img.shields.io/clojars/v/io.helins/timer.cljs.svg)](https://clojars.org/io.helins/timer.cljs)
 
-[![cljdoc
-badge](https://cljdoc.org/badge/dvlopt/timer.cljs)](https://cljdoc.org/d/dvlopt/timer.cljs)
+[![Cljdoc](https://cljdoc.org/badge/io.helins/timer.cljs)](https://cljdoc.org/d/io.helins/timer.cljs)
 
 Scheduling asynchronous operations in Clojurescript can be tedious. There exists
 quite a few ways depending on what is needed and they often have pitfalls (eg.
@@ -22,7 +21,7 @@ After reading the following overview, see the
 Let us require the library:
 
 ```clj
-(require '[dvlopt.timer :as timer])
+(require '[helins.timer :as timer])
 
 ```
 ### "Macro" tasks
@@ -132,7 +131,7 @@ plural form is then useful, a cancelling function being provided as well:
 ```
 
 For the drawing itself, on canvas, we recommend
-[dvlopt/draw](https://github.com/dvlopt/draw.cljs).
+[io.helins/canvas](https://github.com/helins/canvas.cljs).
 
 
 ### Micro tasks
